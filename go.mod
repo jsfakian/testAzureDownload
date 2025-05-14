@@ -5,15 +5,10 @@ go 1.24.1
 toolchain go1.24.2
 
 require (
+	github.com/joho/godotenv v1.5.1
 	github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b
 	github.com/lf-edge/eve/pkg/pillar v0.0.0-20250410101457-0a65291340d9
 	github.com/sirupsen/logrus v1.9.3
-)
-
-require (
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.0 // indirect
 )
 
 require (
@@ -25,6 +20,8 @@ require (
 	cloud.google.com/go/iam v1.4.0 // indirect
 	cloud.google.com/go/monitoring v1.24.0 // indirect
 	cloud.google.com/go/storage v1.50.0 // indirect
+	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
+	github.com/Azure/azure-storage-blob-go v0.15.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.49.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.49.0 // indirect
@@ -49,11 +46,11 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/native v1.0.1-0.20221213033349-c1e37c09b531 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
+	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/mdlayher/netlink v1.7.1 // indirect
 	github.com/mdlayher/socket v0.4.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -91,4 +88,4 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 )
 
-replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250514071306-c57a55025d61
+//replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250514071306-c57a55025d61

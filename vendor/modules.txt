@@ -46,49 +46,12 @@ cloud.google.com/go/storage/experimental
 cloud.google.com/go/storage/internal
 cloud.google.com/go/storage/internal/apiv2
 cloud.google.com/go/storage/internal/apiv2/storagepb
-# github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0
-## explicit; go 1.18
-github.com/Azure/azure-sdk-for-go/sdk/azcore
-github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/exported
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/log
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/async
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/body
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/fake
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/loc
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/pollers/op
-github.com/Azure/azure-sdk-for-go/sdk/azcore/internal/shared
-github.com/Azure/azure-sdk-for-go/sdk/azcore/log
-github.com/Azure/azure-sdk-for-go/sdk/azcore/policy
-github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime
-github.com/Azure/azure-sdk-for-go/sdk/azcore/streaming
-github.com/Azure/azure-sdk-for-go/sdk/azcore/to
-github.com/Azure/azure-sdk-for-go/sdk/azcore/tracing
-# github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0
-## explicit; go 1.18
-github.com/Azure/azure-sdk-for-go/sdk/internal/diag
-github.com/Azure/azure-sdk-for-go/sdk/internal/errorinfo
-github.com/Azure/azure-sdk-for-go/sdk/internal/exported
-github.com/Azure/azure-sdk-for-go/sdk/internal/log
-github.com/Azure/azure-sdk-for-go/sdk/internal/poller
-github.com/Azure/azure-sdk-for-go/sdk/internal/temporal
-github.com/Azure/azure-sdk-for-go/sdk/internal/uuid
-# github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.0
-## explicit; go 1.18
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/appendblob
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/bloberror
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal/base
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal/exported
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal/generated
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/internal/shared
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/pageblob
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/sas
-github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/service
+# github.com/Azure/azure-pipeline-go v0.2.3
+## explicit; go 1.14
+github.com/Azure/azure-pipeline-go/pipeline
+# github.com/Azure/azure-storage-blob-go v0.15.0
+## explicit; go 1.15
+github.com/Azure/azure-storage-blob-go/azblob
 # github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0
 ## explicit; go 1.21
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp
@@ -337,7 +300,7 @@ github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/kr/fs v0.1.0
 ## explicit
 github.com/kr/fs
-# github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b => github.com/jsfakian/eve-libs v0.0.0-20250514071306-c57a55025d61
+# github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b
 ## explicit; go 1.23.0
 github.com/lf-edge/eve-libs/nettrace
 github.com/lf-edge/eve-libs/zedUpload
@@ -355,6 +318,9 @@ github.com/lf-edge/eve/pkg/pillar/netdump
 # github.com/lithammer/shortuuid/v4 v4.2.0
 ## explicit; go 1.21
 github.com/lithammer/shortuuid/v4
+# github.com/mattn/go-ieproxy v0.0.1
+## explicit; go 1.14
+github.com/mattn/go-ieproxy
 # github.com/mdlayher/netlink v1.7.1
 ## explicit; go 1.18
 github.com/mdlayher/netlink
@@ -483,6 +449,7 @@ golang.org/x/net/dns/dnsmessage
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/http/httpguts
+golang.org/x/net/http/httpproxy
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
@@ -740,4 +707,3 @@ google.golang.org/protobuf/types/known/fieldmaskpb
 google.golang.org/protobuf/types/known/structpb
 google.golang.org/protobuf/types/known/timestamppb
 google.golang.org/protobuf/types/known/wrapperspb
-# github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250514071306-c57a55025d61

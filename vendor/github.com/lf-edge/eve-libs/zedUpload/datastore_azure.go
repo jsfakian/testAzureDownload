@@ -108,8 +108,12 @@ func (ep *AzureTransportMethod) GetNetTrace(description string) (
 
 // File upload to Azure Blob Datastore
 func (ep *AzureTransportMethod) processAzureUpload(req *DronaRequest) (string, error) {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return "", err
+	}
 	file := req.name
-	loc, err := azure.UploadAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container, file, req.objloc)
+	loc, err := azure.UploadAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container, file, req.objloc, hClient)
 	if err != nil {
 		return loc, err
 	}
@@ -118,6 +122,10 @@ func (ep *AzureTransportMethod) processAzureUpload(req *DronaRequest) (string, e
 
 // File download from Azure Blob Datastore
 func (ep *AzureTransportMethod) processAzureDownload(req *DronaRequest) error {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return err
+	}
 	file := req.name
 	prgChan := make(types.StatsNotifChan)
 	defer close(prgChan)
@@ -125,7 +133,7 @@ func (ep *AzureTransportMethod) processAzureDownload(req *DronaRequest) error {
 		go statsUpdater(req, ep.ctx, prgChan)
 	}
 	doneParts, err := azure.DownloadAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container,
-		file, req.objloc, req.sizelimit, req.doneParts, prgChan)
+		file, req.objloc, req.sizelimit, hClient, req.doneParts, prgChan)
 	req.doneParts = doneParts
 	if err != nil {
 		return err
@@ -135,7 +143,11 @@ func (ep *AzureTransportMethod) processAzureDownload(req *DronaRequest) error {
 
 // File delete from Azure Blob Datastore
 func (ep *AzureTransportMethod) processAzureBlobDelete(req *DronaRequest) error {
-	err := azure.DeleteAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container, req.name)
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return err
+	}
+	err = azure.DeleteAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container, req.name, hClient)
 	//log.Printf("Azure Blob delete status: %v", status)
 	return err
 }
@@ -143,7 +155,12 @@ func (ep *AzureTransportMethod) processAzureBlobDelete(req *DronaRequest) error 
 // File list from Azure Blob Datastore
 func (ep *AzureTransportMethod) processAzureBlobList(req *DronaRequest) ([]string, error, int) {
 	var csize int
-	img, err := azure.ListAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container)
+	var img []string
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return img, err, csize
+	}
+	img, err = azure.ListAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container, hClient)
 	if err != nil {
 		return img, err, csize
 	}
@@ -151,7 +168,11 @@ func (ep *AzureTransportMethod) processAzureBlobList(req *DronaRequest) ([]strin
 }
 
 func (ep *AzureTransportMethod) processAzureBlobMetaData(req *DronaRequest) (int64, string, error) {
-	size, md5, err := azure.GetAzureBlobMetaData(ep.aurl, ep.acName, ep.acKey, ep.container, req.name)
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return 0, "", err
+	}
+	size, md5, err := azure.GetAzureBlobMetaData(ep.aurl, ep.acName, ep.acKey, ep.container, req.name, hClient)
 	if err != nil {
 		return 0, "", err
 	}
@@ -163,13 +184,21 @@ func (ep *AzureTransportMethod) getContext() *DronaCtx {
 }
 
 func (ep *AzureTransportMethod) processAzureUploadByChunks(req *DronaRequest) error {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return err
+	}
 	return azure.UploadPartByChunk(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.UploadID, bytes.NewReader(req.Adata))
+		req.localName, req.UploadID, hClient, bytes.NewReader(req.Adata))
 }
 
 func (ep *AzureTransportMethod) processAzureDownloadByChunks(req *DronaRequest) error {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return err
+	}
 	readCloser, size, err := azure.DownloadAzureBlobByChunks(ep.aurl, ep.acName, ep.acKey,
-		ep.container, req.name, req.objloc)
+		ep.container, req.name, req.objloc, hClient)
 	if err != nil {
 		return err
 	}
@@ -184,13 +213,21 @@ func (ep *AzureTransportMethod) processAzureDownloadByChunks(req *DronaRequest) 
 }
 
 func (ep *AzureTransportMethod) processGenerateBlobSasURI(req *DronaRequest) (string, error) {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return "", err
+	}
 	return azure.GenerateBlobSasURI(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.Duration)
+		req.localName, hClient, req.Duration)
 }
 
 func (ep *AzureTransportMethod) processPutBlockListIntoBlob(req *DronaRequest) error {
+	hClient, err := ep.hClientWrap.unwrap()
+	if err != nil {
+		return err
+	}
 	return azure.UploadBlockListToBlob(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.Blocks)
+		req.localName, hClient, req.Blocks)
 }
 
 func (ep *AzureTransportMethod) NewRequest(opType SyncOpType, objname, objloc string, sizelimit int64, ackback bool, reply chan *DronaRequest) *DronaRequest {
