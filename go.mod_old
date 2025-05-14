@@ -1,0 +1,21 @@
+module testAzureDownload
+
+require github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b
+
+require (
+	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
+	github.com/Azure/azure-storage-blob-go v0.15.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
+	github.com/mattn/go-ieproxy v0.0.1 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
+)
+
+replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250404142213-5234c0e828c3
+
+go 1.23.0
+
+toolchain go1.23.8
