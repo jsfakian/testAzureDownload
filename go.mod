@@ -2,13 +2,15 @@ module testAzureDownload
 
 go 1.23.0
 
-toolchain go1.23.9
+toolchain go1.23.10
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b
-	github.com/lf-edge/eve/pkg/pillar v0.0.0-20250516160044-1ee884dd6e93
+	github.com/lf-edge/eve/pkg/pillar v0.0.0-20250611121513-fd353552d688
 	github.com/sirupsen/logrus v1.9.3
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
@@ -22,6 +24,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.82 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/cli v25.0.3+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker v25.0.6+incompatible // indirect
@@ -36,7 +39,6 @@ require (
 	github.com/google/go-containerregistry v0.14.0 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -52,6 +54,7 @@ require (
 	github.com/packetcap/go-pcap v0.0.0-20230717110547-c34843f9206d // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.1 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20180404165556-75cca531ea76 // indirect
 	github.com/ti-mo/conntrack v0.4.0 // indirect
 	github.com/ti-mo/netfilter v0.3.1 // indirect
@@ -75,7 +78,8 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
 	google.golang.org/grpc v1.61.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250528191415-6345f4e53d0a

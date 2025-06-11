@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -16,7 +17,6 @@ import (
 	"github.com/lf-edge/eve-libs/zedUpload"
 	"github.com/lf-edge/eve-libs/zedUpload/types"
 	"github.com/lf-edge/eve/pkg/pillar/base"
-	"github.com/lf-edge/eve/pkg/pillar/netdump"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,17 +28,10 @@ var (
 const (
 	SyncAwsTr          zedUpload.SyncTransportType = "s3"
 	SyncAzureTr        zedUpload.SyncTransportType = "azure"
-	SyncGSTr           zedUpload.SyncTransportType = "google"
-	SyncHttpTr         zedUpload.SyncTransportType = "http"
-	SyncSftpTr         zedUpload.SyncTransportType = "sftp"
-	SyncOCIRegistryTr  zedUpload.SyncTransportType = "oci"
 	progressFileSuffix                             = ".progress"
 )
 
-// Notify simple struct to pass notification messages
 type Notify struct{}
-
-// CancelChannel is the type we send over a channel for the per-download cancels
 type CancelChannel chan Notify
 
 func loadDownloadedParts(locFilename string) types.DownloadedParts {
@@ -76,68 +69,100 @@ func saveDownloadedParts(locFilename string, downloadedParts types.DownloadedPar
 }
 
 func main() {
-	// Setup logger
 	logger = logrus.New()
 	logger.SetLevel(logrus.TraceLevel)
 	log = base.NewSourceLogObject(logger, "main", 1234)
 
-	if err := godotenv.Load(); err != nil {
-		log.Noticef("warning: no .env file found (%v)\n", err)
+	_ = godotenv.Load()
+
+	transport := os.Getenv("TRANSPORT")
+
+	// Azure values
+	azureURL := os.Getenv("ACCOUNT_URL")
+	azureContainer := os.Getenv("CONTAINER")
+	azureRemoteFile := os.Getenv("REMOTE_FILE")
+	azureLocalFile := os.Getenv("LOCAL_FILE")
+	azureAccountName := os.Getenv("ACCOUNT_NAME")
+	azureAccountKey := os.Getenv("ACCOUNT_KEY")
+
+	// AWS values
+	awsRegion := os.Getenv("AWS_ACCOUNT_URL") // this is actually the region
+	awsContainer := os.Getenv("AWS_CONTAINER")
+	awsRemoteFile := os.Getenv("AWS_REMOTE_FILE")
+	awsLocalFile := os.Getenv("AWS_LOCAL_FILE") // reuse same local output or change if needed
+	awsAccessKey := os.Getenv("AWS_KEY_ID")
+	awsSecretKey := os.Getenv("AWS_KEY_SECRET")
+	//awsToken := os.Getenv("AWS_TOKEN")
+
+	var (
+		auth       *zedUpload.AuthInput
+		accountURL string
+		container  string
+		remoteFile string
+		localFile  string
+		syncTr     zedUpload.SyncTransportType
+	)
+
+	switch transport {
+	case "azure":
+		syncTr = SyncAzureTr
+		auth = &zedUpload.AuthInput{
+			AuthType: "password",
+			Uname:    azureAccountName,
+			Password: azureAccountKey,
+		}
+		accountURL = azureURL
+		container = azureContainer
+		remoteFile = azureRemoteFile
+		localFile = azureLocalFile
+	case "aws":
+		syncTr = SyncAwsTr
+		if strings.HasPrefix(awsRegion, "http") {
+			log.Fatalf("For AWS, AWS_ACCOUNT_URL must be the region (e.g., me-central-1), not a full URL")
+		}
+		auth = &zedUpload.AuthInput{
+			AuthType: "s3",
+			Uname:    awsAccessKey,
+			Password: awsSecretKey,
+		}
+		accountURL = awsRegion
+		container = awsContainer
+		remoteFile = awsRemoteFile
+		localFile = awsLocalFile
+	default:
+		log.Fatalf("Unsupported TRANSPORT: %s", transport)
 	}
 
-	accountURL := os.Getenv("ACCOUNT_URL")
-	container := os.Getenv("CONTAINER")
-	accountName := os.Getenv("ACCOUNT_NAME")
-	accountKey := os.Getenv("ACCOUNT_KEY")
-	remoteFile := os.Getenv("REMOTE_FILE")
-	localFile := os.Getenv("LOCAL_FILE")
-
-	// WaitGroup to block main until download is done
 	var wg sync.WaitGroup
 	wg.Add(1)
-	// Start pprof listener
 	go func() {
 		defer wg.Done()
 		fmt.Println("pprof listening on :6060")
-		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
-			fmt.Printf("pprof failed: %v\n", err)
-		}
+		_ = http.ListenAndServe("0.0.0.0:6060", nil)
 	}()
 
-	//headerFieldsOpt := nettrace.HdrFieldsOptValueLenOnly
-	//headerFieldsOpt = nettrace.HdrFieldsOptWithValues
-	//headerFieldsOpt = nettrace.HdrFieldsOptDisabled
-
 	traceOpts := []nettrace.TraceOpt{
-		&nettrace.WithLogging{
-			CustomLogger: &base.LogrusWrapper{Log: log},
-		},
+		&nettrace.WithLogging{CustomLogger: &base.LogrusWrapper{Log: log}},
 		&nettrace.WithConntrack{},
 		&nettrace.WithDNSQueryTrace{},
-		/*&nettrace.WithHTTPReqTrace{
-			HeaderFields: headerFieldsOpt,
-		},*/
-	}
-	var tracedReq netdump.TracedNetRequest
-	auth := &zedUpload.AuthInput{
-		AuthType: "password",
-		Uname:    accountName,
-		Password: accountKey,
 	}
 
-	dCtx, _ := zedUpload.NewDronaCtx("zdownloader", 0)
-	dEndPoint, _ := dCtx.NewSyncerDest(SyncAzureTr, accountURL, container, auth)
+	dCtx, _ := zedUpload.NewDronaCtx("mydownloader", 0)
+	dEndPoint, err := dCtx.NewSyncerDest(syncTr, accountURL, container, auth)
+	if err != nil {
+		log.Fatalf("Failed to create endpoint: %v", err)
+	}
 	dEndPoint.WithNetTracing(traceOpts...)
 
 	downloadedParts := loadDownloadedParts(remoteFile)
 	downloadedPartsHash := downloadedParts.Hash()
 
-	var respChan = make(chan *zedUpload.DronaRequest)
+	respChan := make(chan *zedUpload.DronaRequest)
+	objSize := int64(18887540736)
 
-	// create Request
-	req := dEndPoint.NewRequest(zedUpload.SyncOpDownload, remoteFile, localFile,
-		int64(18887540736), true, respChan)
+	req := dEndPoint.NewRequest(zedUpload.SyncOpDownload, remoteFile, localFile, objSize, true, respChan)
 	if req == nil {
+		log.Errorf("Failed to create request")
 		return
 	}
 	req = req.WithDoneParts(downloadedParts)
@@ -145,73 +170,39 @@ func main() {
 	defer req.Cancel()
 	req = req.WithLogger(logger)
 
-	// Tell caller where we can be cancelled
-	/*cancelChan := make(chan Notify, 1)
-	receiveChan := make(chan CancelChannel, 1)
-	receiveChan <- cancelChan
-	// if we are done before event from cancelChan do nothing
-	doneChan := make(chan Notify)
-	defer close(doneChan)
-	go func() {
-		select {
-		case <-doneChan:
-			log.Functionf("doneChan")
-			// remove cancel channel
-			receiveChan <- nil
-		case _, ok := <-cancelChan:
-			if ok {
-				errStr := fmt.Sprintf("cancelled by user: <%s>, <%s>, <%s>",
-					container, remoteFile)
-				log.Error(errStr)
-				_ = req.Cancel()
-			} else {
-				log.Warnf("cancelChan closed")
-				return
-			}
-		}
-	}()*/
-
 	req.Post()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for resp := range respChan {
-			newDownloadedParts := resp.GetDoneParts()
-			newDownloadedPartsHash := newDownloadedParts.Hash()
-			if downloadedPartsHash != newDownloadedPartsHash {
-				downloadedPartsHash = newDownloadedPartsHash
-				downloadedParts = newDownloadedParts
+			newParts := resp.GetDoneParts()
+			if downloadedPartsHash != newParts.Hash() {
+				downloadedParts = newParts
+				downloadedPartsHash = newParts.Hash()
 				saveDownloadedParts(localFile, downloadedParts)
 			}
 
 			if resp.IsDnUpdate() {
 				currentSize, totalSize, _ := resp.Progress()
-				log.Functionf("Update progress for %v: %v/%v",
-					resp.GetLocalName(), currentSize, totalSize)
-				// sometime, the download goes to an infinite loop,
-				// showing it has downloaded, more than it is supposed to
-				// aborting download, marking it as an error
+				log.Functionf("Progress: %v/%v for %s", currentSize, totalSize, resp.GetLocalName())
 				if currentSize > totalSize {
-					errStr := fmt.Sprintf("Size '%v' provided in image config of '%s' is incorrect.\nDownload status (%v / %v). Aborting the download",
-						totalSize, resp.GetLocalName(), currentSize, totalSize)
-					log.Errorln(errStr)
+					log.Errorf("Aborting: current > total size (%v > %v)", currentSize, totalSize)
 					return
 				}
-				dEndPoint.GetNetTrace("AzureDownload")
+				dEndPoint.GetNetTrace("DownloadTrace")
 				continue
 			}
-			err := resp.GetDnStatus()
+
 			if resp.IsError() {
-				fmt.Println("Download failed: %v, %v", tracedReq, err)
+				log.Errorf("Download failed: %v", resp.GetDnStatus())
 				return
 			}
 
-			fmt.Println("Download done: %v size %d", resp.GetLocalName(), resp.GetAsize())
+			log.Functionf("Download done: %s (%d bytes)", resp.GetLocalName(), resp.GetAsize())
 			return
 		}
-
 	}()
 	wg.Wait()
-	fmt.Printf("Download succeeded\n")
+	fmt.Println("Download succeeded")
 }
