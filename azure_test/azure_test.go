@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	azure "github.com/lf-edge/eve-libs/zedUpload/azureutil"
+	"github.com/lf-edge/eve-libs/zedUpload/types"
 )
 
 func TestMain(m *testing.M) {
@@ -271,5 +272,60 @@ func TestUploadPartAndBlockList(t *testing.T) {
 	// cleanup
 	require.NoError(t, azure.DeleteAzureBlob(
 		accountURL, accountName, accountKey, container, blobName, httpClient,
+	))
+}
+
+// TestDownloadAzureBlob tests DownloadAzureBlob end-to-end against real Azure Blob Storage.
+func TestDownloadAzureBlob(t *testing.T) {
+	accountURL := getEnvOrSkip(t, "TEST_AZURE_ACCOUNT_URL")
+	accountName := getEnvOrSkip(t, "TEST_AZURE_ACCOUNT_NAME")
+	accountKey := getEnvOrSkip(t, "TEST_AZURE_ACCOUNT_KEY")
+	container := getEnvOrSkip(t, "TEST_AZURE_CONTAINER")
+
+	httpClient := newHTTPClient()
+
+	// Create a unique blob and local files
+	blobName := randomBlobName("test-dl")
+	srcPath := filepath.Join(t.TempDir(), "src.bin")
+	content := []byte("Integration download test payload")
+	require.NoError(t, os.WriteFile(srcPath, content, 0644))
+
+	// Upload the blob
+	_, err := azure.UploadAzureBlob(
+		accountURL, accountName, accountKey,
+		container, blobName, srcPath, httpClient,
+	)
+	require.NoError(t, err)
+
+	// Download to a new file
+	dstPath := filepath.Join(t.TempDir(), "dst.bin")
+	parts, err := azure.DownloadAzureBlob(
+		accountURL,
+		accountName,
+		accountKey,
+		container,
+		blobName,
+		dstPath,
+		0, // no max size limit
+		types.DownloadedParts{},
+		nil, // no progress channel
+		httpClient,
+	)
+	require.NoError(t, err)
+
+	// Validate downloaded content
+	data, err := os.ReadFile(dstPath)
+	require.NoError(t, err)
+	require.Equal(t, content, data)
+
+	// Validate parts metadata
+	require.Len(t, parts.Parts, 1)
+	require.Equal(t, int64(0), parts.Parts[0].Ind)
+	require.Equal(t, int64(len(content)), parts.Parts[0].Size)
+
+	// Cleanup
+	require.NoError(t, azure.DeleteAzureBlob(
+		accountURL, accountName, accountKey,
+		container, blobName, httpClient,
 	))
 }

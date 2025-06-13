@@ -1,0 +1,30 @@
+name: Go Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        env:
+          # secrets injected as env vars
+          TEST_AZURE_ACCOUNT_URL: ${{ secrets.TEST_AZURE_ACCOUNT_URL }}
+          TEST_AZURE_ACCOUNT_NAME: ${{ secrets.TEST_AZURE_ACCOUNT_NAME }}
+          TEST_AZURE_ACCOUNT_KEY: ${{ secrets.TEST_AZURE_ACCOUNT_KEY }}
+          TEST_AZURE_CONTAINER: ${{ secrets.TEST_AZURE_CONTAINER }}
+          TEST_AZURE_BLOB_PREFIX: ${{ secrets.TEST_AZURE_BLOB_PREFIX }}
+        run: |
+          go test ./azure_test -v
