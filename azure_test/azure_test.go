@@ -162,7 +162,7 @@ func TestGenerateBlobSasURI(t *testing.T) {
 	require.NoError(t, err)
 
 	// Generate SAS
-	sasURL, err := azure.GenerateBlobSasURI(accountURL, accountName, accountKey, container, blobName, 5*time.Minute, httpClient)
+	sasURL, err := azure.GenerateBlobSasURI(accountURL, accountName, accountKey, container, blobName, httpClient, 5*time.Minute)
 	require.NoError(t, err)
 	require.Contains(t, sasURL, "?")
 
@@ -239,17 +239,17 @@ func TestUploadPartAndBlockList(t *testing.T) {
 	// stage blocks
 	require.NoError(t, azure.UploadPartByChunk(
 		accountURL, accountName, accountKey, container, blobName, idA,
-		bytes.NewReader(partA), httpClient,
+		httpClient, bytes.NewReader(partA),
 	))
 	require.NoError(t, azure.UploadPartByChunk(
 		accountURL, accountName, accountKey, container, blobName, idB,
-		bytes.NewReader(partB), httpClient,
+		httpClient, bytes.NewReader(partB),
 	))
 
 	// commit in order
 	require.NoError(t, azure.UploadBlockListToBlob(
 		accountURL, accountName, accountKey, container, blobName,
-		[]string{idA, idB}, httpClient,
+		httpClient, []string{idA, idB},
 	))
 
 	// **HERE**: give it a file path
@@ -307,9 +307,9 @@ func TestDownloadAzureBlob(t *testing.T) {
 		blobName,
 		dstPath,
 		0, // no max size limit
+		httpClient,
 		types.DownloadedParts{},
 		nil, // no progress channel
-		httpClient,
 	)
 	require.NoError(t, err)
 

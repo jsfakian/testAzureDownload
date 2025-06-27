@@ -113,8 +113,8 @@ func (ep *AzureTransportMethod) processAzureUpload(req *DronaRequest) (string, e
 		return "", err
 	}
 	file := req.name
-	loc, err := azure.UploadAzureBlob(
-		ep.aurl, ep.acName, ep.acKey, ep.container, file, req.objloc, hClient)
+	loc, err := azure.UploadAzureBlob(ep.aurl, ep.acName, ep.acKey,
+		ep.container, file, req.objloc, hClient)
 	if err != nil {
 		return loc, err
 	}
@@ -134,7 +134,7 @@ func (ep *AzureTransportMethod) processAzureDownload(req *DronaRequest) error {
 		go statsUpdater(req, ep.ctx, prgChan)
 	}
 	doneParts, err := azure.DownloadAzureBlob(ep.aurl, ep.acName, ep.acKey, ep.container,
-		file, req.objloc, req.sizelimit, req.doneParts, prgChan, hClient)
+		file, req.objloc, req.sizelimit, hClient, req.doneParts, prgChan)
 	req.doneParts = doneParts
 	if err != nil {
 		return err
@@ -173,8 +173,8 @@ func (ep *AzureTransportMethod) processAzureBlobMetaData(req *DronaRequest) (int
 	if err != nil {
 		return 0, "", err
 	}
-	size, md5, err := azure.GetAzureBlobMetaData(
-		ep.aurl, ep.acName, ep.acKey, ep.container, req.name, hClient)
+	size, md5, err := azure.GetAzureBlobMetaData(ep.aurl, ep.acName, ep.acKey,
+		ep.container, req.name, hClient)
 	if err != nil {
 		return 0, "", err
 	}
@@ -191,7 +191,7 @@ func (ep *AzureTransportMethod) processAzureUploadByChunks(req *DronaRequest) er
 		return err
 	}
 	return azure.UploadPartByChunk(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.UploadID, bytes.NewReader(req.Adata), hClient)
+		req.localName, req.UploadID, hClient, bytes.NewReader(req.Adata))
 }
 
 func (ep *AzureTransportMethod) processAzureDownloadByChunks(req *DronaRequest) error {
@@ -220,7 +220,7 @@ func (ep *AzureTransportMethod) processGenerateBlobSasURI(req *DronaRequest) (st
 		return "", err
 	}
 	return azure.GenerateBlobSasURI(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.Duration, hClient)
+		req.localName, hClient, req.Duration)
 }
 
 func (ep *AzureTransportMethod) processPutBlockListIntoBlob(req *DronaRequest) error {
@@ -229,7 +229,7 @@ func (ep *AzureTransportMethod) processPutBlockListIntoBlob(req *DronaRequest) e
 		return err
 	}
 	return azure.UploadBlockListToBlob(ep.aurl, ep.acName, ep.acKey, ep.container,
-		req.localName, req.Blocks, hClient)
+		req.localName, hClient, req.Blocks)
 }
 
 func (ep *AzureTransportMethod) NewRequest(opType SyncOpType, objname, objloc string, sizelimit int64, ackback bool, reply chan *DronaRequest) *DronaRequest {

@@ -28,7 +28,7 @@ import (
 
 const (
 	// SingleMB contains chunk size
-	SingleMB    int64 = 1024 * 1024
+	SingleMB    int64 = 4 * 1024 * 1024
 	parallelism       = 16
 )
 
@@ -212,9 +212,9 @@ func DeleteAzureBlob(
 func DownloadAzureBlob(
 	accountURL, accountName, accountKey, containerName, blobName, localFile string,
 	objMaxSize int64,
+	httpClient *http.Client,
 	doneParts types.DownloadedParts,
 	prgNotify types.StatsNotifChan,
-	httpClient *http.Client,
 ) (types.DownloadedParts, error) {
 
 	stats := &types.UpdateStats{DoneParts: doneParts}
@@ -435,8 +435,8 @@ func GetAzureBlobMetaData(
 // GenerateBlobSasURI is used to generate the URI which can be used to access the blob until the the URI expries
 func GenerateBlobSasURI(
 	accountURL, accountName, accountKey, containerName, remoteFile string,
-	duration time.Duration,
 	httpClient *http.Client,
+	duration time.Duration,
 ) (string, error) {
 	// Create credential
 	cred, err := azblob.NewSharedKeyCredential(accountName, accountKey)
@@ -475,8 +475,8 @@ func GenerateBlobSasURI(
 // UploadPartByChunk upload an individual chunk given an io.ReadSeeker and partID
 func UploadPartByChunk(
 	accountURL, accountName, accountKey, containerName, remoteFile, partID string,
-	chunk io.ReadSeeker,
 	httpClient *http.Client,
+	chunk io.ReadSeeker,
 ) error {
 	ctx := context.Background()
 
@@ -510,8 +510,8 @@ func UploadPartByChunk(
 // UploadBlockListToBlob used to complete the list of parts which are already uploaded in block blob
 func UploadBlockListToBlob(
 	accountURL, accountName, accountKey, containerName, remoteFile string,
-	blocks []string,
 	httpClient *http.Client,
+	blocks []string,
 ) error {
 	ctx := context.Background()
 
