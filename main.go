@@ -158,9 +158,10 @@ func main() {
 	downloadedPartsHash := downloadedParts.Hash()
 
 	respChan := make(chan *zedUpload.DronaRequest)
-	objSize := int64(18887540736)
+	objSize := int64(3750756352)
 
 	req := dEndPoint.NewRequest(zedUpload.SyncOpDownload, remoteFile, localFile, objSize, true, respChan)
+
 	if req == nil {
 		log.Errorf("Failed to create request")
 		return

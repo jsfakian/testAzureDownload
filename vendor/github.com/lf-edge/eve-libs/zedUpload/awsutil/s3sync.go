@@ -221,10 +221,28 @@ func (s *S3ctx) downloadPart(ch chan *partS3, wg *sync.WaitGroup) {
 			p.cWriter.writerGlobalOptions.err = err
 			continue
 		}
-		_, err = io.Copy(p.cWriter, resp.Body)
-		resp.Body.Close()
-		if err != nil {
-			p.cWriter.writerGlobalOptions.err = err
+		defer resp.Body.Close()
+
+		buf := make([]byte, 32*1024)
+		offset := int64(0)
+
+		for {
+			n, readErr := resp.Body.Read(buf)
+			if n > 0 {
+				_, writeErr := p.cWriter.WriteAt(buf[:n], offset)
+				if writeErr != nil {
+					p.cWriter.writerGlobalOptions.err = writeErr
+					break
+				}
+				offset += int64(n)
+			}
+			if readErr == io.EOF {
+				break
+			}
+			if readErr != nil {
+				p.cWriter.writerGlobalOptions.err = readErr
+				break
+			}
 		}
 	}
 }
