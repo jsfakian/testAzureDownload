@@ -99,4 +99,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250630134952-57adf3108b29
+replace github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250701153634-dd1cc10cd798
