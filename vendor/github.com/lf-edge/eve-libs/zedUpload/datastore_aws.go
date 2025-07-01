@@ -351,6 +351,9 @@ func (ep *AwsTransportMethod) processMultipartUpload(req *DronaRequest) (string,
 		return "", "", err
 	}
 	s3ctx, err := zedAWS.NewAwsCtx(ep.token, ep.apiKey, ep.region, hClient)
+	if err != nil {
+		return "", "", err
+	}
 	if req.cancelContext != nil {
 		s3ctx = s3ctx.WithContext(req.cancelContext)
 	}
@@ -367,6 +370,9 @@ func (ep *AwsTransportMethod) completeMultipartUpload(req *DronaRequest) error {
 		return err
 	}
 	s3ctx, err := zedAWS.NewAwsCtx(ep.token, ep.apiKey, ep.region, hClient)
+	if err != nil {
+		return err
+	}
 	if req.cancelContext != nil {
 		s3ctx = s3ctx.WithContext(req.cancelContext)
 	}
@@ -382,6 +388,9 @@ func (ep *AwsTransportMethod) generateSignedURL(req *DronaRequest) (string, erro
 		return "", err
 	}
 	s3ctx, err := zedAWS.NewAwsCtx(ep.token, ep.apiKey, ep.region, hClient)
+	if err != nil {
+		return "", err
+	}
 	if req.cancelContext != nil {
 		s3ctx = s3ctx.WithContext(req.cancelContext)
 	}

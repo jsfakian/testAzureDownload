@@ -331,7 +331,7 @@ github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/kr/fs v0.1.0
 ## explicit
 github.com/kr/fs
-# github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b => github.com/jsfakian/eve-libs v0.0.0-20250627091529-a0c1401f6f04
+# github.com/lf-edge/eve-libs v0.0.0-20250313200311-28f858e8e99b => github.com/jsfakian/eve-libs v0.0.0-20250630134952-57adf3108b29
 ## explicit; go 1.23.0
 github.com/lf-edge/eve-libs/nettrace
 github.com/lf-edge/eve-libs/zedUpload
@@ -654,4 +654,4 @@ google.golang.org/protobuf/types/known/timestamppb
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
-# github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250627091529-a0c1401f6f04
+# github.com/lf-edge/eve-libs => github.com/jsfakian/eve-libs v0.0.0-20250630134952-57adf3108b29
